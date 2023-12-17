@@ -12,7 +12,7 @@ class ApiGenerator < Rails::Generators::NamedBase
   def create_interaction_files
     actions.each do |action|
       @interaction_name = interaction_name(action)
-      @parent_class_name = parent_class_name
+      @parent_class_name = parent_interaction_class_name
       path = File.join(
         "app/interactions", class_path, "#{@interaction_name.underscore}.rb"
       )
@@ -36,18 +36,21 @@ class ApiGenerator < Rails::Generators::NamedBase
 
   private
 
-  # 継承するコントローラーの名前を取得する
   def parent_controller_name
     return 'V1::AdminUsers::ApplicationController' if class_path.include?('admin_users')
     return 'V1::Users::ApplicationController' if class_path.include?('users')
     return 'V1::Public::ApplicationController' if class_path.include?('public')
+    return 'V1::Batch::ApplicationController' if class_path.include?('batch')
     raise '継承するコントローラーが見つかりませんでした'
   end
 
   def operator
     return 'admin_user' if class_path.include?('admin_users')
     return 'user' if class_path.include?('users')
-    return '' if class_path.include?('public')
+    if class_path.include?('public') || class_path.include?('batch')
+      return ''
+    end
+
     raise 'operatorが見つかりませんでした'
   end
 
@@ -70,10 +73,11 @@ class ApiGenerator < Rails::Generators::NamedBase
     "#{prefix}#{name}Interaction"
   end
 
-  def parent_class_name
+  def parent_interaction_class_name
     return 'V1::AdminUsers::Base' if class_path.include?('admin_users')
     return 'V1::Users::Base' if class_path.include?('users')
     return 'V1::Public::Base' if class_path.include?('public')
+    return 'V1::Batch::Base' if class_path.include?('batch')
     raise '継承するクラスが見つかりませんでした'
   end
 
