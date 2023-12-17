@@ -27,9 +27,11 @@ class ApiGenerator < Rails::Generators::NamedBase
   end
 
   def create_serializer
-    serializer_name
-    # serializerが存在しない場合は作成する
-
+    @serializer_name = serializer_name
+    serializer_file_name = "#{@serializer_name}.rb"
+    unless File.exist?("#{Rails.root}/app/serializers/#{serializer_file_name}")
+      template "serializer.rb.erb", File.join("app/serializers", "#{serializer_file_name}")
+    end
   end
 
   private
@@ -51,11 +53,7 @@ class ApiGenerator < Rails::Generators::NamedBase
 
   def serializer_name
     resource_name = class_name.split('::').last.singularize.underscore
-    @serializer_name = "#{resource_name}_serializer"
-    serializer_file_name = "#{@serializer_name}.rb"
-    unless File.exist?("#{Rails.root}/app/serializers/#{serializer_file_name}")
-      template "serializer.rb.erb", File.join("app/serializers", class_path, "#{serializer_file_name}")
-    end
+    "#{resource_name}_serializer"
   end
 
   def interaction_name(action)
