@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative "generator/version"
+require_relative "use/version"
 
-module Api
-  module Generator
+module Rails
+  module Use
     class Error < StandardError; end
     # Your code goes here...
   end

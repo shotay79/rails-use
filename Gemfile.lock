@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    api-generator (0.1.0)
+    rails-use (0.1.0)
       colorize
 
 GEM
@@ -79,8 +79,8 @@ PLATFORMS
   arm64-darwin-23
 
 DEPENDENCIES
-  api-generator!
   colorize
+  rails-use!
   rake (~> 13.0)
   rspec (~> 3.0)
   rubocop-airbnb
