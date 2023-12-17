@@ -1,0 +1,8 @@
+<% module_namespacing do -%>
+class <%= class_path.map(&:camelize).join('::').gsub('::V1', 'V1') %>::<%= @interaction_name %> < <%= @parent_class_name %>
+  def execute
+    # Response.error(data: serialize(resource))
+    Response.success(data: serialize(resource))
+  end
+end
+<% end -%>

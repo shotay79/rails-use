@@ -1,0 +1,14 @@
+<% if namespaced? -%>
+require_dependency "<%= namespaced_path %>/application_controller"
+
+<% end -%>
+<% module_namespacing do -%>
+class <%= class_name.gsub('::V1', 'V1') %>Controller < <%= @parent_controller_name %>
+<% actions.each do |action| -%>
+  def <%= action %>
+    render_interaction <%= class_path.map(&:camelize).join('::').gsub('::V1', 'V1') %>::<%= interaction_name(action) %>.run!
+  end
+<%= "\n" unless action == actions.last -%>
+<% end -%>
+end
+<% end -%>

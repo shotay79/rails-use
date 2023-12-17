@@ -1,0 +1,27 @@
+<% module_namespacing do -%>
+require 'rails_helper'
+
+RSpec.describe "<%= class_name.gsub('::V1', 'V1') %>", type: :request do
+<% if @operator != '' -%>
+  let!(:current_<%= @operator %>) { create(:<%= @operator %>) }
+  let!(:headers) { api_headers }
+
+<% end -%>
+<% actions.each do |action| -%>
+  describe "#<%= action %>" do
+    subject(:submit_request) do
+      <%= method_name(action) %> "<%= end_point(action) %>", <%= ['index', 'show'].include?(action) ? '' : 'params: params, ' %>headers: headers, as: :json
+      response
+    end
+<% if @operator != '' %>
+    it_behaves_like 'when api_headers is exist'
+    it_behaves_like 'when api_headers is not exist'
+<% end -%>
+<% if @operator == '' %>
+    it_behaves_like '200'
+<% end -%>
+  end
+<%= "\n" unless action == actions.last -%>
+<% end -%>
+end
+<% end -%>
