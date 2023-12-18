@@ -65,7 +65,7 @@ module Rails
             next if path.match(/rails|cable/)
 
             method = route.verb.downcase
-            next if method == 'patch'
+            next if ['patch', ''].include?(method)
 
             {
               method: route.verb.downcase,
