@@ -2,6 +2,7 @@
 
 require_relative "use/version"
 require_relative "use/railsroutes2aspida"
+require_relative "use/railsserializer2types"
 
 module Rails
   module Use
