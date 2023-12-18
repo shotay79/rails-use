@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'colorize'
 
 require_relative 'railsroutes2aspida/configuration'
@@ -26,7 +27,15 @@ module Rails
             method = route[:method].downcase
 
             parts.each_with_index do |part, i|
-              dir += "/#{part.start_with?(':') ? "_#{part[1..]}@string" : part}"
+              dir += if part.start_with?(':')
+                       if part == ':id'
+                         "/_#{parts[i - 1].singularize.camelize(:lower)}Id@string"
+                       else
+                         "/_#{part[1..].camelize(:lower)}@string"
+                       end
+                     else
+                       "/#{part}"
+                     end
               FileUtils.mkdir_p(dir) unless Dir.exist?(dir)
 
               if i == parts.length - 1
@@ -34,7 +43,8 @@ module Rails
                 if File.exist?(file_path)
                   content = File.read(file_path)
                   unless content.include?("#{method}:")
-                    new_content = content.gsub(/export type Methods = DefineMethods<\{/, "export type Methods = DefineMethods<{\n  #{method}: {\n    // TODO: Define request and response types\n    resBody: Response<{}, unknown>;\n  },")
+                    new_content = content.gsub(/export type Methods = DefineMethods<\{/,
+"export type Methods = DefineMethods<{\n  #{method}: {\n    // TODO: Define request and response types\n    resBody: Response<{}, unknown>;\n  },")
                     File.write(file_path, new_content)
                     puts "Added #{method} method to #{file_path}".green
                   end
