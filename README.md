@@ -25,7 +25,7 @@ Rails::Use::Railsroutes2aspida.configure do |config|
 end
 ```
 
-Afterwards, executing `bundle exec railsroutes2aspida`` will generate the API definition files.
+Afterwards, executing `bundle exec railsroutes2aspida` will generate the API definition files.
 
 ## Development
 
