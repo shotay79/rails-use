@@ -17,8 +17,15 @@ If bundler is not being used to manage dependencies, install the gem by executin
     $ gem install UPDATE_WITH_YOUR_GEM_NAME_PRIOR_TO_RELEASE_TO_RUBYGEMS_ORG
 
 ## Usage
+### railsroutes2aspida
+Please create a file named `config/initializers/railsroutes2aspida.rb`` and specify the path to aspida/api as shown:
+```ruby
+Rails::Use::Railsroutes2aspida.configure do |config|
+  config.routes_file = '/your/path/to/aspida/api'
+end
+```
 
-TODO: Write usage instructions here
+Afterwards, executing `bundle exec railsroutes2aspida`` will generate the API definition files.
 
 ## Development
 
