@@ -1,4 +1,4 @@
-# RailsUse
+# [RailsUse](https://github.com/shotay79/rails-use)
 
 ## Installation
 ```rb
