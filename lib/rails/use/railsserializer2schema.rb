@@ -1,19 +1,26 @@
 require 'colorize'
 
+require_relative 'railsroutes2schema/configuration'
+
 module Rails
   module Use
     module Railsserializer2schema
       class << self
-        # def configuration
-        #   @configuration ||= Configuration.new
-        # end
+        def configuration
+          @configuration ||= Configuration.new
+        end
 
-        # def configure
-        #   yield(configuration)
-        # end
+        def configure
+          yield(configuration)
+        end
 
         def execute
-          dir = './types'
+          if Railsroutes2schema.configuration.output_dir.blank?
+            raise 'Please set Railsroutes2schema.configuration.output_dir'
+          end
+
+          dir = Railsroutes2schema.configuration.output_dir
+
           FileUtils.mkdir_p(dir) unless Dir.exist?(dir)
           serializers_path = Dir.glob('app/serializers/**/*.rb')
           models = <<~TS
@@ -26,12 +33,12 @@ module Rails
             models += interface
           end
 
-          File.write(dir + '/models.d.ts', <<~TS
+          File.write(dir + '/models.ts', <<~TS
             import { z } from "zod";
 
+            #{models}
           TS
           )
-          File.write(dir + '/models.d.ts', models)
         end
 
         private
@@ -41,42 +48,40 @@ module Rails
           model_name = serializer.name.gsub('Serializer', '')
           model_class = model_name.constantize
           columns = model_class.columns_hash
+          schema_name = model_name + 'Schema'
           interface_types = serializer_attributes.map do |attribute|
             column = columns[attribute.to_s]
             type = if column.nil?
                      'unknown'
                    else
-                     _type = type_to_interface_type(column.type)
+                     _type = "z" + type_to_interface_type(column.type)
                      if column.null
-                       _type += ' | null'
+                       _type += '.nullable()'
                      end
                      _type
                    end
             { attribute.to_s.camelize(:lower) => type }
           end
-          relation_types = OrderSerializer._reflections.map do |association|
+          relation_types = serializer._reflections.map do |association|
             name = association[0].to_s.camelize(:lower)
             if association[1].is_a?(ActiveModel::Serializer::BelongsToReflection)
               next { "#{name}?" => name.camelize }
             end
 
             if association[1].is_a?(ActiveModel::Serializer::HasManyReflection)
-              next { "#{name}?" => name.singularize.camelize + '[]' }
+              next { "#{name}" => "z.array(#{name.singularize.camelize}Schema).optional()" }
             end
           end
           <<~TS
-            export interface #{model_name} {
+            export const #{schema_name} = z.object({
               #{
-                interface_types.map do |type|
-                  type.keys[0] + ': ' + type.values[0]
+                [interface_types, relation_types].flatten.map do |type|
+                  type.keys[0] + ': ' + type.values[0] + ','
                 end.join("\n\t")
               }
-              #{
-                relation_types.map do |type|
-                  type.keys[0] + ': ' + type.values[0]
-                end.join("\n\t")
-              }
-            }
+            })
+
+            export type #{model_name} = z.infer<typeof #{schema_name}>;
 
           TS
         end
@@ -84,11 +89,11 @@ module Rails
         def type_to_interface_type(type)
           case type
           when :uuid, :datetime, :date, :text
-            'string'
+            '.string()'
           when :integer
-            'number'
+            '.number()'
           else
-            type.to_s
+            ".#{type.to_s}()"
           end
         end
       end

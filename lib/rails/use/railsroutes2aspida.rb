@@ -17,13 +17,13 @@ module Rails
         end
 
         def execute
-          if Railsroutes2aspida.configuration.api_dir.blank?
-            raise 'Please set Railsroutes2aspida.configuration.api_dir'
+          if Railsroutes2aspida.configuration.output_dir.blank?
+            raise 'Please set Railsroutes2aspida.configuration.output_dir'
           end
 
           routes.each do |route|
             parts = route[:path].split('/').filter(&:present?)
-            dir = Railsroutes2aspida.configuration.api_dir
+            dir = Railsroutes2aspida.configuration.output_dir
             method = route[:method].downcase
 
             parts.each_with_index do |part, i|
