@@ -1,6 +1,6 @@
 module Rails
   module Use
-    module Railsroutes2aspida
+    module Railsserializer2schema
       class Configuration
         attr_accessor :output_dir
       end

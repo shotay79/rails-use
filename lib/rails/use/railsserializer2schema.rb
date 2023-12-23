@@ -1,6 +1,6 @@
 require 'colorize'
 
-require_relative 'railsroutes2schema/configuration'
+require_relative 'railsserializer2schema/configuration'
 
 module Rails
   module Use
