@@ -1,25 +1,17 @@
 require 'colorize'
 
-require_relative 'railsserializer2schema/configuration'
+require_relative 'configuration'
 
 module Rails
   module Use
     module Railsserializer2schema
       class << self
-        def configuration
-          @configuration ||= Configuration.new
-        end
-
-        def configure
-          yield(configuration)
-        end
-
         def execute
-          if Railsroutes2schema.configuration.output_dir.blank?
-            raise 'Please set Railsroutes2schema.configuration.output_dir'
+          if Rails::Use.configuration.model_output_dir.blank?
+            raise 'Please set Rails::Use.configuration.model_output_dir'
           end
 
-          dir = Railsroutes2schema.configuration.output_dir
+          dir = Rails::Use.configuration.model_output_dir
 
           FileUtils.mkdir_p(dir) unless Dir.exist?(dir)
           serializers_path = Dir.glob('app/serializers/**/*.rb')
@@ -33,7 +25,7 @@ module Rails
             models += interface
           end
 
-          File.write(dir + '/models.ts', <<~TS
+          File.write(dir + '/index.ts', <<~TS
             import { z } from "zod";
 
             #{models}

@@ -2,28 +2,20 @@
 
 require 'colorize'
 
-require_relative 'railsroutes2aspida/configuration'
+require_relative 'configuration'
 
 module Rails
   module Use
     module Railsroutes2aspida
       class << self
-        def configuration
-          @configuration ||= Configuration.new
-        end
-
-        def configure
-          yield(configuration)
-        end
-
         def execute
-          if Railsroutes2aspida.configuration.output_dir.blank?
-            raise 'Please set Railsroutes2aspida.configuration.output_dir'
+          if Rails::Use.configuration.aspida_output_dir.blank?
+            raise 'Please set Rails::Use.configuration.aspida_output_dir'
           end
 
           routes.each do |route|
             parts = route[:path].split('/').filter(&:present?)
-            dir = Railsroutes2aspida.configuration.output_dir
+            dir = Rails::Use.configuration.aspida_output_dir
             method = route[:method].downcase
 
             parts.each_with_index do |part, i|
