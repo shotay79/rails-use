@@ -2,7 +2,7 @@ require 'colorize'
 
 module Rails
   module Use
-    module Railsserializer2types
+    module Railsserializer2schema
       class << self
         # def configuration
         #   @configuration ||= Configuration.new
@@ -26,6 +26,11 @@ module Rails
             models += interface
           end
 
+          File.write(dir + '/models.d.ts', <<~TS
+            import { z } from "zod";
+
+          TS
+          )
           File.write(dir + '/models.d.ts', models)
         end
 

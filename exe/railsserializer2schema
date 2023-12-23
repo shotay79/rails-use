@@ -14,4 +14,4 @@ Dir[File.join(File.dirname(File.dirname(__FILE__)), 'lib/tasks', '**/*.rake')].e
   load rake
 end
 
-Rake::Task['railsserializer2types:execute'].execute
+Rake::Task['railsserializer2schema:execute'].execute
