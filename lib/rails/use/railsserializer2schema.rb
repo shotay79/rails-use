@@ -31,6 +31,7 @@ module Rails
             #{models}
           TS
           )
+          puts "f #{dir}".green
         end
 
         private
