@@ -86,7 +86,7 @@ module Rails
           when :integer
             '.number()'
           else
-            ".#{type.to_s}()"
+            ".#{type}()"
           end
         end
       end
