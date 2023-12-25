@@ -4,7 +4,7 @@ require_relative "lib/rails_use/version"
 
 Gem::Specification.new do |spec|
   spec.name = 'rails_use'
-  spec.version = Rails::Use::VERSION
+  spec.version = RailsUse::VERSION
   spec.authors = ['shotay79']
   spec.email = ['rails-use@googlegroups.com']
 
