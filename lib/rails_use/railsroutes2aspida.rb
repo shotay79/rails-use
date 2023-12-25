@@ -8,13 +8,13 @@ module RailsUse
   module Railsroutes2aspida
     class << self
       def execute
-        if Rails::Use.configuration.aspida_output_dir.blank?
-          raise 'Please set Rails::Use.configuration.aspida_output_dir'
+        if RailsUse.configuration.aspida_output_dir.blank?
+          raise 'Please set RailsUse.configuration.aspida_output_dir'
         end
 
         routes.each do |route|
           parts = route[:path].split('/').filter(&:present?)
-          dir = Rails::Use.configuration.aspida_output_dir
+          dir = RailsUse.configuration.aspida_output_dir
           method = route[:method].downcase
 
           parts.each_with_index do |part, i|

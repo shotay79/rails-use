@@ -6,11 +6,11 @@ module RailsUse
   module Railsserializer2schema
     class << self
       def execute
-        if Rails::Use.configuration.schema_output_dir.blank?
-          raise 'Please set Rails::Use.configuration.schema_output_dir'
+        if RailsUse.configuration.schema_output_dir.blank?
+          raise 'Please set RailsUse.configuration.schema_output_dir'
         end
 
-        dir = Rails::Use.configuration.schema_output_dir
+        dir = RailsUse.configuration.schema_output_dir
 
         FileUtils.mkdir_p(dir) unless Dir.exist?(dir)
         serializers_path = Dir.glob('app/serializers/**/*.rb')

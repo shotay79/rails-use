@@ -9,7 +9,7 @@ gem 'rails-use'
 ### railsroutes2aspida
 Please create a file named `config/initializers/railsroutes2aspida.rb`` and specify the path to aspida/api as shown:
 ```ruby
-Rails::Use.configure do |config|
+RailsUse.configure do |config|
   config.aspida_output_dir = '/your/path/to/aspida/api'
   config.schema_output_dir = '/your/path/to/types'
 end
