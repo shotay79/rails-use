@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+binding.pry
+binding.pry
+
 require_relative '../slack_notifier'
 require_relative "use/version"
 require_relative "use/railsroutes2aspida"
