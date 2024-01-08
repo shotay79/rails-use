@@ -25,8 +25,6 @@ module RailsUse
         end
 
         File.write(dir + '/index.ts', <<~TS
-          import { z } from "zod";
-
           #{models}
         TS
         )
@@ -36,35 +34,50 @@ module RailsUse
       private
 
       def serializer_to_interface(serializer)
+        dir = RailsUse.configuration.schema_output_dir
         serializer_attributes = serializer._attributes
         model_name = serializer.name.gsub('Serializer', '')
         model_class = model_name.constantize
         columns = model_class.columns_hash
-        schema_name = model_name + 'Schema'
+        schema_name = model_name.singularize.camelize(:lower) + 'Schema'
         interface_types = serializer_attributes.map do |attribute|
           column = columns[attribute.to_s]
           type = if column.nil?
-                    'unknown'
-                  else
-                    _type = "z" + type_to_interface_type(column.type)
-                    if column.null
-                      _type += '.nullable()'
-                    end
-                    _type
-                  end
+                   'z.unknown()'
+                 else
+                   _type = "z" + type_to_interface_type(column.type)
+                   if column.null
+                     _type += '.nullable()'
+                   end
+                   _type
+                 end
           { attribute.to_s.camelize(:lower) => type }
         end
+
+        import_files = <<~TS
+        TS
+
         relation_types = serializer._reflections.map do |association|
-          name = association[0].to_s.camelize(:lower)
+          relation_name = association[0].to_s.singularize.camelize(:lower)
           if association[1].is_a?(ActiveModel::Serializer::BelongsToReflection)
-            next { "#{name}?" => name.camelize }
+            import_files += <<~TS
+              import { #{relation_name}Schema } from './#{relation_name}';
+            TS
+            next { "#{relation_name}" => "#{relation_name}Schema.optional()" }
           end
 
           if association[1].is_a?(ActiveModel::Serializer::HasManyReflection)
-            next { "#{name}" => "z.array(#{name.singularize.camelize}Schema).optional()" }
+            import_files += <<~TS
+              import { #{relation_name}Schema } from './#{relation_name}';
+            TS
+            next { "#{relation_name}" => "z.array(#{relation_name}Schema).optional()" }
           end
         end
-        <<~TS
+        camelcase_model_name = model_name.singularize.camelize(:lower)
+
+        File.write(dir + "/#{camelcase_model_name}.ts", <<~TS
+          import { z } from "zod";
+          #{import_files}
           export const #{schema_name} = z.object({
             #{
               [interface_types, relation_types].flatten.map do |type|
@@ -74,7 +87,10 @@ module RailsUse
           })
 
           export type #{model_name} = z.infer<typeof #{schema_name}>;
-
+        TS
+        )
+        <<~TS
+          export * from './#{camelcase_model_name}';
         TS
       end
 
