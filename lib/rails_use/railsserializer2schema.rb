@@ -58,19 +58,24 @@ module RailsUse
         TS
 
         relation_types = serializer._reflections.map do |association|
-          relation_name = association[0].to_s.singularize.camelize(:lower)
+          relation_name = association[0].to_s
+          camelcase_name = relation_name.singularize.camelize(:lower)
           if association[1].is_a?(ActiveModel::Serializer::BelongsToReflection)
-            import_files += <<~TS
-              import { #{relation_name}Schema } from './#{relation_name}';
-            TS
-            next { "#{relation_name}" => "#{relation_name}Schema.optional()" }
+            if model_class.reflect_on_association(relation_name).options[:polymorphic]
+              next { "#{camelcase_name}" => "z.unknown()" }
+            else
+              import_files += <<~TS
+                import { #{camelcase_name}Schema } from './#{camelcase_name}';
+              TS
+              next { "#{camelcase_name}" => "#{camelcase_name}Schema.optional()" }
+            end
           end
 
           if association[1].is_a?(ActiveModel::Serializer::HasManyReflection)
             import_files += <<~TS
-              import { #{relation_name}Schema } from './#{relation_name}';
+              import { #{camelcase_name}Schema } from './#{camelcase_name}';
             TS
-            next { "#{relation_name}" => "z.array(#{relation_name}Schema).optional()" }
+            next { "#{camelcase_name}" => "z.array(#{camelcase_name}Schema).optional()" }
           end
         end
         camelcase_model_name = model_name.singularize.camelize(:lower)
