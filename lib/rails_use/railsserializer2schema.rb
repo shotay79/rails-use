@@ -37,7 +37,11 @@ module RailsUse
         dir = RailsUse.configuration.schema_output_dir
         serializer_attributes = serializer._attributes
         model_name = serializer.name.gsub('Serializer', '')
-        model_class = model_name.constantize
+        begin
+          model_class = model_name.constantize
+        rescue NameError => _e
+          return ''
+        end
         columns = model_class.columns_hash
         schema_name = model_name.singularize.camelize(:lower) + 'Schema'
         interface_types = serializer_attributes.map do |attribute|
@@ -77,6 +81,13 @@ module RailsUse
               import { #{singularize_name}Schema } from './#{singularize_name}';
             TS
             next { "#{pluralize_name}" => "z.array(#{singularize_name}Schema).optional()" }
+          end
+
+          if association[1].is_a?(ActiveModel::Serializer::HasOneReflection)
+            import_files += <<~TS
+              import { #{singularize_name}Schema } from './#{singularize_name}';
+            TS
+            next { "#{singularize_name}" => "#{singularize_name}Schema.optional()" }
           end
         end
         camelcase_model_name = model_name.singularize.camelize(:lower)
