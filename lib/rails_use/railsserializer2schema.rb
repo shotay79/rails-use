@@ -37,6 +37,10 @@ module RailsUse
         dir = RailsUse.configuration.schema_output_dir
         serializer_attributes = serializer._attributes
         model_name = serializer.name.gsub('Serializer', '')
+        camelcase_model_name = model_name.singularize.camelize(:lower)
+        filename = dir + "/#{camelcase_model_name}.ts"
+        file = File.exist?(filename) ? File.open(filename).read : ''
+
         begin
           model_class = model_name.constantize
         rescue NameError => _e
@@ -46,6 +50,10 @@ module RailsUse
         schema_name = model_name.singularize.camelize(:lower) + 'Schema'
         interface_types = serializer_attributes.map do |attribute|
           column = columns[attribute.to_s]
+          matched = file.match(/(#{attribute.to_s.camelize(:lower)}):\s(.+),/)
+          if matched
+            next { attribute.to_s.camelize(:lower) => matched[2] }
+          end
           type = if column.nil?
                    'z.unknown()'
                  else
@@ -65,13 +73,20 @@ module RailsUse
           relation_name = association[0].to_s
           pluralize_name = relation_name.pluralize.camelize(:lower)
           singularize_name = relation_name.singularize.camelize(:lower)
+          matched = file.match(/(#{singularize_name}):\s(.+),/)
           if association[1].is_a?(ActiveModel::Serializer::BelongsToReflection)
             if model_class.reflect_on_association(relation_name).options[:polymorphic]
+              if matched
+                next { "#{singularize_name}" => matched[2] }
+              end
               next { "#{singularize_name}" => "z.unknown()" }
             else
               import_files += <<~TS
                 import { #{singularize_name}Schema } from './#{singularize_name}';
               TS
+              if matched
+                next { "#{singularize_name}" => matched[2] }
+              end
               next { "#{singularize_name}" => "#{singularize_name}Schema.optional()" }
             end
           end
@@ -90,7 +105,6 @@ module RailsUse
             next { "#{singularize_name}" => "#{singularize_name}Schema.optional()" }
           end
         end
-        camelcase_model_name = model_name.singularize.camelize(:lower)
 
         File.write(dir + "/#{camelcase_model_name}.ts", <<~TS
           import { z } from "zod";
