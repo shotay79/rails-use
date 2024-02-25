@@ -48,6 +48,7 @@ class ApiGenerator < Rails::Generators::NamedBase
   def operator
     return 'admin_user' if class_path.include?('admin_users')
     return 'user' if class_path.include?('users')
+    return 'service_account' if class_path.include?('service_accounts')
     if class_path.include?('public') || class_path.include?('batch')
       return ''
     end
