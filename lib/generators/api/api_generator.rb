@@ -41,6 +41,7 @@ class ApiGenerator < Rails::Generators::NamedBase
     return 'V1::Users::ApplicationController' if class_path.include?('users')
     return 'V1::Public::ApplicationController' if class_path.include?('public')
     return 'V1::Batch::ApplicationController' if class_path.include?('batch')
+    return 'V1::ServiceAccounts::ApplicationController' if class_path.include?('service_accounts')
     raise '継承するコントローラーが見つかりませんでした'
   end
 
@@ -78,6 +79,7 @@ class ApiGenerator < Rails::Generators::NamedBase
     return 'V1::Users::Base' if class_path.include?('users')
     return 'V1::Public::Base' if class_path.include?('public')
     return 'V1::Batch::Base' if class_path.include?('batch')
+    return 'V1::ServiceAccounts::Base' if class_path.include?('service_accounts')
     raise '継承するクラスが見つかりませんでした'
   end
 
